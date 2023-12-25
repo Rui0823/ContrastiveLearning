@@ -43,16 +43,16 @@ def showTorchImage(image):
 
 
 if __name__ == '__main__':
-    image = readImage(size=256)
-    image=image.unsqueeze(0)
+    image = readImage(size=512)
+    image=image.unsqueeze(0).cuda()
     i_b,i_c,i_h,i_w=image.shape
-    model = build_model(args)
+    model = build_model(args).cuda()
     feature=model(image)
     # showTorchImage(mode)
-    image=image.view(i_b, 3, args.patch_size, 256 // args.patch_size, args.patch_size, 256 // args.patch_size).permute(0, 2, 4,
+    image=image.view(i_b, i_c, args.patch_size, i_w // args.patch_size, args.patch_size, i_w // args.patch_size).permute(0, 2, 4,
                                                                                                               1, 3,
                                                                                                               5).contiguous().view(
-        i_b, args.patch_size * args.patch_size, 3, 256 //args.patch_size, 256 // args.patch_size)
+        i_b, args.patch_size * args.patch_size, i_c, i_w //args.patch_size, i_w // args.patch_size)
     print(image.shape, feature.shape)
     image = image.mean(dim=2).unsqueeze(2)
     B, C, H, W = feature.shape
@@ -60,11 +60,15 @@ if __name__ == '__main__':
     ps = torch.nn.PixelShuffle(32 // args.patch_size if args.patch_size < 32 else args.patch_size // 32)
     feature=ps(feature)
     print(image.shape,feature.shape)
-    final = torch.cat([image, feature], dim=2).view(B,args.patch_size*args.patch_size*3,i_h//args.patch_size,i_w//args.patch_size)
-    conv1=nn.Conv2d(args.patch_size*args.patch_size*3,args.patch_size*args.patch_size*3*((i_w//args.patch_size)**2),kernel_size=16,stride=16,padding=0,groups=args.patch_size*args.patch_size)
-    final=conv1(final).flatten(2).view(i_b,args.patch_size*args.patch_size,args.patch_size*args.patch_size*3).contiguous()
-    vit=VisionTransformer(img_size=i_h,patch_size=args.patch_size,embed=False)
-    print(vit(final).shape)
+    final = torch.cat([image, feature], dim=2).view(B,args.patch_size*args.patch_size*3,i_h//args.patch_size,i_w//args.patch_size).cuda() #将图像与特征进行cat，并且以每三张为一组
+    conv1=nn.Conv2d(args.patch_size*args.patch_size*3,args.patch_size*args.patch_size*3*((i_w//args.patch_size)**2),kernel_size=i_w//args.patch_size,stride=i_w//args.patch_size,padding=0,groups=args.patch_size*args.patch_size)
+    final=conv1(final).flatten(2) #以三个为一组进行分组卷积，然后每组再产生 3*(i_w//args.patch_size)*(i_w//args.patch_size)个卷积，这个地方其实就是vit的patch_embed,然后flatten开，再分成patcha_size*patch_size组
+    print(final.shape)
+    final=final.view(i_b,args.patch_size*args.patch_size,i_w//args.patch_size*(i_w//args.patch_size)*3).contiguous()
+    vit=VisionTransformer(img_size=i_h,patch_size=i_w//args.patch_size,embed=False,embed_dim=i_w//args.patch_size*(i_w//args.patch_size)*3)
+    vit_feature=vit(final)
+    print(vit_feature.shape)
+
     # mode = mode.view(1,3,args.patch_size,256//args.patch_size,args.patch_size,256//args.patch_size).permute(0,2,4,1,3,5).contiguous().view(1,args.patch_size*args.patch_size,3,256//int(args.patch_size),256//int(args.patch_size))
     # B, C, H, W = feature.shape
     #
