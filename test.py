@@ -23,7 +23,7 @@ parser.add_argument('--is_embed', default=False, type=bool, help="配置VIT的�
 args=parser.parse_args()
 
 
-def readImage(path='data/a.jpg', size=256):#这里可以替换成自己的图片
+def readImage(path='data/a.png', size=256):#这里可以替换成自己的图片
     image = Image.open(path)
     transform1 = transforms.Compose([
         # transforms.Scale(size),
