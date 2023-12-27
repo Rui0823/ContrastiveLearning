@@ -8,10 +8,10 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 from models.vit import VisionTransformer
-from models.backbone import Feature2Patch
+from models.backbone import Feature2Patch,Patch2Feature
 
 parser = argparse.ArgumentParser(description='配置网络参数')
-parser.add_argument('--patchs', default=16, type=int, help="将最后网络输出变成多少个patch")
+parser.add_argument('--patchs', default=8, type=int, help="将最后网络输出变成多少个patch")
 parser.add_argument('--batch_size', default=8, type=int, help="每次传入网络的batch")
 parser.add_argument('--encoder', default="res101", type=str, help="backbone")
 parser.add_argument('--root', default=r'/data',type=str, help='dataset root')
@@ -19,7 +19,11 @@ parser.add_argument('--lr', default=2e-4,type=int, help='学习率')
 parser.add_argument('--cuda', default=True,type=bool, help='是否使用gpu')
 parser.add_argument('--pretrained', default=True,type=bool, help='是否使用预训练模型')
 parser.add_argument('--image_size', default=224, type=int, help="图像的大小")
-parser.add_argument('--is_embed', default=False, type=bool, help="配置VIT的参数，是否使用patch_embed")
+parser.add_argument('--is_patch_embed', default=False, type=bool, help="配置VIT的参数，是否使用patch_embed")
+parser.add_argument('--is_proj', default=True, type=bool, help="是否进行映射,默认为True")
+parser.add_argument('--embed_dim', default=1024, type=int, help="默认对转成patch的向量进行同一映射")
+parser.add_argument('--scale_size', default=32, type=int, help="在使用编码器时，编码后的特征缩小了多少倍，需手动更改,resnet101默认等于32")
+parser.add_argument('--encoder_dim', default=2048, type=int, help="在使用编码器时，编码后的特征维度是多少，需手动更改,resnet101默认等于2048")
 args=parser.parse_args()
 
 
@@ -53,7 +57,9 @@ if __name__ == '__main__':
     features=model(image)
     fea_patch=Feature2Patch(args).cuda()
     output=fea_patch(features,image)
-    print(output.shape)
+
+
+    
 
 
 

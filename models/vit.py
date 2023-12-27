@@ -271,7 +271,7 @@ class VisionTransformer(nn.Module):
         #         return (x + x_dist) / 2
         # else:
         # print(x)
-        x = self.head(x)
+        x = self.head(x)    #num_class默认等于-1就是不做分类任务
         return x
 
 

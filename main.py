@@ -13,7 +13,8 @@ parser.add_argument('--lr', default=2e-4,type=int, help='学习率')
 parser.add_argument('--cuda', default=True,type=bool, help='是否使用gpu')
 parser.add_argument('--pretrained', default=True,type=bool, help='是否使用预训练模型')
 parser.add_argument('--image_size', default=224, type=int, help="图像的大小")
-parser.add_argument('--is_embed', default=False, type=bool, help="配置VIT的参数，是否使用patch_embed")
+parser.add_argument('--is_patch_embed', default=False, type=bool, help="配置VIT的参数，是否使用patch_embed")
+parser.add_argument('--embed_dim', default=1024, type=int, help="若使用patch_embed的话，embed的维度")
 args=parser.parse_args()
 from models.backbone import get_encoder,Feature2Patch,get_feature_extraction
 from utils.dataset import SSLData
