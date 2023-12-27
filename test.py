@@ -11,7 +11,7 @@ from models.vit import VisionTransformer
 from models.backbone import Feature2Patch,Patch2Feature
 
 parser = argparse.ArgumentParser(description='配置网络参数')
-parser.add_argument('--patchs', default=8, type=int, help="将最后网络输出变成多少个patch")
+parser.add_argument('--patchs', default=4, type=int, help="将最后网络输出变成多少个patch")
 parser.add_argument('--batch_size', default=8, type=int, help="每次传入网络的batch")
 parser.add_argument('--encoder', default="res101", type=str, help="backbone")
 parser.add_argument('--root', default=r'/data',type=str, help='dataset root')
@@ -50,13 +50,17 @@ def showTorchImage(image):
 
 
 if __name__ == '__main__':
-    image = readImage(size=224)
-    image=image.unsqueeze(0).cuda()
+    image = readImage(size=256)
+    image=image.unsqueeze(0)
     i_b,i_c,i_h,i_w=image.shape
-    model = build_model(args).cuda()
+    model = build_model(args)
     features=model(image)
-    fea_patch=Feature2Patch(args).cuda()
+    fea_patch=Feature2Patch(args)
     output=fea_patch(features,image)
+    print(output.shape)
+    patch_fea=Patch2Feature(args)
+    out=patch_fea(output)
+    print(output.shape)
 
 
     
