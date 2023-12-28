@@ -233,11 +233,11 @@ def _resnet(arch, block, layers, pretrained, progress, **kwargs):
         model.avgpool=nn.Identity()
         model.fc=nn.Identity()
     return model
-def resnet50(pretrained=False, progress=True, **kwargs):
+def res_en50(pretrained=False, progress=True, **kwargs):
     return _resnet('resnet50', Bottleneck, [3, 4, 6, 3], pretrained, progress,
                    **kwargs)
 
-def resnet101(pretrained=False, progress=True, **kwargs):
+def res_en101(pretrained=False, progress=True, **kwargs):
     r"""ResNet-101 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     Args:

@@ -1,21 +1,33 @@
 import torch
 import torchvision
 from models.res_encoder import *
+from models.res_decoder import res_de101,res_de50,res_de152
 from models.vit import *
 import torch.nn as nn
 def get_encoder(args):
     model=None
     if args.encoder=="res50":
         pretrained=args.pretrained
-        return resnet50(pretrained=pretrained)
+        return res_en50(pretrained=pretrained)
         # print(model)
     elif args.encoder=="res101":
         pretrained = args.pretrained
-        return resnet101(pretrained=pretrained)
+        return res_en101(pretrained=pretrained)
+    return model
+def get_decoder(args):
+    model = None
+    if args.encoder == "res50":
+        pretrained = args.pretrained
+        return res_de50()
+        # print(model)
+    elif args.encoder == "res101":
+        pretrained = args.pretrained
+        return res_de101()
     return model
 
+
 def get_feature_extraction(args):
-    model=VisionTransformer(img_size=args.image_szie,embed=args.is_embed,embed_dim=args.image_szie//args.patchs*(args.image_szie//args.patchs)*3)
+    model=VisionTransformer(img_size=args.image_size,patch_size=args.image_size//args.patchs,embed_dim=args.embed_dim)
     return model
 
 class Feature2Patch(nn.Module):

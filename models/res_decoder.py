@@ -118,23 +118,23 @@ class ResNet(nn.Module):
         return x
 
 
-def ResNet50(num_classes=4):
-    return ResNet([3, 4, 6, 3], num_classes=num_classes)
+def res_de50():
+    return ResNet([3, 4, 6, 3])
 
 
-def ResNet101():
+def res_de101():
     return ResNet([3, 4, 23, 3])
 
 
-def ResNet152():
+def res_de152():
     return ResNet([3, 8, 36, 3])
 
 
-if __name__ == '__main__':
-    # model = torchvision.models.resnet50()
-    model = ResNet101()
-    print(model)
-
-    input = torch.randn(1, 2048, 8, 8)
-    out = model(input)
-    print(out.shape)
+# if __name__ == '__main__':
+#     # model = torchvision.models.resnet50()
+#     model = ResNet101()
+#     print(model)
+#
+#     input = torch.randn(1, 2048, 8, 8)
+#     out = model(input)
+#     print(out.shape)
