@@ -13,7 +13,7 @@ from models.backbone import Feature2Patch,Patch2Feature
 parser = argparse.ArgumentParser(description='配置网络参数')
 parser.add_argument('--patchs', default=4, type=int, help="将最后网络输出变成多少个patch")
 parser.add_argument('--batch_size', default=8, type=int, help="每次传入网络的batch")
-parser.add_argument('--encoder', default="res101", type=str, help="backbone")
+parser.add_argument('--encoder', default="res50", type=str, help="backbone")
 parser.add_argument('--root', default=r'/data',type=str, help='dataset root')
 parser.add_argument('--lr', default=2e-4,type=int, help='学习率')
 parser.add_argument('--cuda', default=True,type=bool, help='是否使用gpu')
@@ -55,6 +55,7 @@ if __name__ == '__main__':
     i_b,i_c,i_h,i_w=image.shape
     model = build_model(args)
     features=model(image)
+    print(features.shape)
     fea_patch=Feature2Patch(args)
     output=fea_patch(features,image)
     print(output.shape)

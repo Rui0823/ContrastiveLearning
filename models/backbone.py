@@ -1,6 +1,6 @@
 import torch
 import torchvision
-from models.resnet import *
+from models.res_encoder import *
 from models.vit import *
 import torch.nn as nn
 def get_encoder(args):
