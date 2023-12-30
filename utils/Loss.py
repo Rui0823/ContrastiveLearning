@@ -6,12 +6,12 @@ class TotalLoss(nn.Module):
         super().__init__()
         self.patchclass=PatchClass(args)
         self.patchmask=PatchMask(args)
-        self.bceloss=nn.BCEWithLogitsLoss()
-        self.l2loss=nn.MSELoss()
+        self.bceloss=nn.BCELoss()
+        self.l2loss=nn.L1Loss()
     def forward(self,out,label,mask_index):
         pc=self.patchclass(label)
-        bceloss=self.bceloss(pc,mask_index)
         pm=self.patchmask(mask_index)
+        bceloss = self.bceloss(pc.float(), mask_index.flatten().repeat(pc.size()[0],1).float())
         out=out*pm
         label=label*pm
         l2loss=self.l2loss(out,label)

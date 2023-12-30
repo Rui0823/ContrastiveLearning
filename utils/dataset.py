@@ -12,7 +12,7 @@ class SSLData(Dataset):
         else:
             self.transform=transform
         self.root_dir=args.root
-        self.train=args.train
+        # self.train=args.train
         self.images=os.listdir(self.root_dir)
     def __getitem__(self, index):
         image_name=self.images[index]

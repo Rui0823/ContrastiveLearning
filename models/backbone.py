@@ -85,12 +85,14 @@ class RandomMask(nn.Module):
         self.mask_index=torch.randint(2, (args.patchs*args.patchs, 1))
         self.embed_dim=args.embed_dim
         self.patchs=args.patchs
+        self.args=args
 
     def forward(self,x):
-        mask=Variable(self.mask_index,requires_grad=False)
-        index=torch.arange(0,self.patchs*self.patchs).unsqueeze(1)
-        mask_index=(index*mask).flatten()
-        out=x.index_fill(1,mask_index,0)
+        device = x.device
+        mask=Variable(self.mask_index,requires_grad=False).to(device)
+        index=torch.arange(0,self.patchs*self.patchs).unsqueeze(1).to(device)
+        mask_index=(index*mask).flatten().to(device)
+        out=x.index_fill(1,mask_index,0).to(device)
         return out,mask
 
 class PatchClass(nn.Module):
@@ -103,7 +105,6 @@ class PatchClass(nn.Module):
     def forward(self,x):
         B=x.size()[0]
         out=self.conv(x)
-        print(out)
         return out.view(B,-1)
 
 
