@@ -12,7 +12,7 @@ from models.backbone import Feature2Patch,Patch2Feature,get_encoder,get_decoder,
 from torch.autograd import Variable
 
 parser = argparse.ArgumentParser(description='配置网络参数')
-parser.add_argument('--patchs', default=32, type=int, help="将最后网络输出变成多少个patch")
+parser.add_argument('--patchs', default=16, type=int, help="将最后网络输出变成多少个patch")
 parser.add_argument('--batch_size', default=8, type=int, help="每次传入网络的batch")
 parser.add_argument('--encoder', default="res50", type=str, help="encoder for image")
 parser.add_argument('--decoder', default="res50", type=str, help="decoder for feature")
