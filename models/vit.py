@@ -7,7 +7,24 @@ from collections import OrderedDict
 
 import torch
 import torch.nn as nn
+import math
+from torch.autograd import Variable
 
+class PositionalEncoding(nn.Module):
+    def __init__(self,patchs,embed_dim):
+        super(PositionalEncoding, self).__init__()
+        pe = torch.zeros(patchs, embed_dim)
+        position = torch.arange(0, patchs).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, embed_dim, 2) *
+                             -(math.log(10000.0) / embed_dim))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        x = x + Variable(self.pe, requires_grad=False)
+        return x
 
 def drop_path(x, drop_prob: float = 0., training: bool = False):
     """
@@ -203,7 +220,9 @@ class VisionTransformer(nn.Module):
 
         # self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
         # self.dist_token = nn.Parameter(torch.zeros(1, 1, embed_dim)) if distilled else None
-        self.pos_embed = nn.Parameter(torch.zeros(1, num_patches, embed_dim))
+
+        # self.pos_embed = nn.Parameter(torch.zeros(1, num_patches, embed_dim))
+        self.pos_embed=PositionalEncoding(num_patches,embed_dim)
         self.pos_drop = nn.Dropout(p=drop_ratio)
 
         dpr = [x.item() for x in torch.linspace(0, drop_path_ratio, depth)]  # stochastic depth decay rule
@@ -234,7 +253,7 @@ class VisionTransformer(nn.Module):
         #     self.head_dist = nn.Linear(self.embed_dim, self.num_classes) if num_classes > 0 else nn.Identity()
 
         # Weight init
-        nn.init.trunc_normal_(self.pos_embed, std=0.02)
+        # nn.init.trunc_normal_(self.pos_embed, std=0.02)
         # if self.dist_token is not None:
         #     nn.init.trunc_normal_(self.dist_token, std=0.02)
 
@@ -251,7 +270,7 @@ class VisionTransformer(nn.Module):
         # else:
         #     x = torch.cat((cls_token, self.dist_token.expand(x.shape[0], -1, -1), x), dim=1)
 
-        x = self.pos_drop(x + self.pos_embed)
+        x = self.pos_drop(self.pos_embed(x))
         x = self.blocks(x)
         x = self.norm(x)
         # if self.dist_token is None:

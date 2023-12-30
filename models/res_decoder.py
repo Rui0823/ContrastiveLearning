@@ -74,7 +74,7 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, blocks, num_classes=1000, expansion=2):
+    def __init__(self, blocks,  expansion=2):
         super(ResNet, self).__init__()
         self.expansion = expansion
 

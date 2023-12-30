@@ -78,12 +78,46 @@ class Patch2Feature(nn.Module):
         return feature
 
 
-
-
-
-
-
-class MCL(nn.Module):
+class RandomMask(nn.Module):
+    #由于对patch采用了映射，是在映射前进行随机掩码还是映射后进行随机掩码这个地方需要进行实验
     def __init__(self,args):
         super().__init__()
-        self.encoder=get_encoder(args)
+        self.mask_index=torch.randint(2, (args.patchs*args.patchs, 1))
+        self.embed_dim=args.embed_dim
+        self.patchs=args.patchs
+
+    def forward(self,x):
+        mask=Variable(self.mask_index,requires_grad=False)
+        index=torch.arange(0,self.patchs*self.patchs).unsqueeze(1)
+        mask_index=(index*mask).flatten()
+        out=x.index_fill(1,mask_index,0)
+        return out,mask
+
+class PatchClass(nn.Module):
+    def __init__(self,args):
+        super().__init__()
+        self.conv=nn.Sequential(
+            nn.Conv2d(3, 1, kernel_size=args.image_size // args.patchs, stride=args.image_size // args.patchs),
+            nn.Sigmoid()
+        )
+    def forward(self,x):
+        B=x.size()[0]
+        out=self.conv(x)
+        print(out)
+        return out.view(B,-1)
+
+
+class PatchMask(nn.Module):
+    #由随机掩码对应每个patch，生成二维的patch
+    def __init__(self,args):
+        super().__init__()
+        self.patch_size=args.image_size//args.patchs
+        self.patchs=args.patchs
+    def forward(self,x):
+        x=x.repeat(1,1,self.patch_size*self.patch_size)
+        mask=x.view(1,self.patchs,self.patchs,self.patch_size,self.patch_size)\
+            .contiguous().view(1,self.patchs,self.patchs*self.patch_size,self.patch_size)\
+            .permute(0,2,1,3).reshape(1,self.patch_size*self.patchs,self.patch_size*self.patchs)
+        return mask
+
+
